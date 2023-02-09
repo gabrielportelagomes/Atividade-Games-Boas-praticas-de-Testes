@@ -2,6 +2,8 @@ import supertest from "supertest";
 import app from "app";
 import { cleanDb } from "../helpers";
 import createConsole from "../factories/console-factory";
+import { faker } from "@faker-js/faker";
+
 beforeAll(async () => {
   await cleanDb();
 });
@@ -31,3 +33,18 @@ describe("GET /consoles/:id",()=>{
 
 })
 
+
+describe("POST /consoles",()=>{
+    it("should respond with status 201 when created",async ()=>{
+        const body = {name: faker.name.firstName()};
+        const response = await server.post("/consoles").send(body);
+        expect(response.status).toBe(201);
+    });
+
+    it("should respond with status 409 if the given name already exists",async()=>{
+        const console = await createConsole();
+        const body = {name: console.name};
+        const response = await server.post("/consoles").send(body);
+        expect(response.status).toBe(409);
+    });
+});
