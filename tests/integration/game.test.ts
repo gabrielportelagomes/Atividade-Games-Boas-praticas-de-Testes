@@ -16,22 +16,44 @@ const server = supertest(app);
 
 describe("GET /games", () => {
   it("shoulde respond with status 200 and games data", async () => {
-    const console = await createConsole();
-    const game = await createGame(console.id);
+    const consoles = await createConsole();
+    const game = await createGame(consoles.id);
 
-    const response = await server.get("/games");
+    const responses = await server.get("/games");
 
-    expect(response.status).toEqual(200);
-    expect(response.body).toEqual([
+    expect(responses.status).toBe(200);
+    expect(responses.body).toEqual([
       {
         id: game.id,
         title: game.title,
         consoleId: game.consoleId,
         Console: {
-          id: console.id,
-          name: console.name,
+          id: consoles.id,
+          name: consoles.name,
         },
       },
     ]);
+  });
+});
+
+describe("GET /games/:id", () => {
+  it("shoulde respond with status 404", async () => {
+    const response = await server.get("/games/0");
+
+    expect(response.status).toBe(404);
+  });
+
+  it("shoulde respond with status 200 and game data", async () => {
+    const consoles = await createConsole();
+    const game = await createGame(consoles.id);
+
+    const response = await server.get(`/games/${game.id}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({
+      id: game.id,
+      title: game.title,
+      consoleId: game.consoleId,
+    });
   });
 });
